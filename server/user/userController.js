@@ -14,19 +14,26 @@ const getUsers = async (req, res) => {
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log('Login attempt:', { email, password });
+    
     const user = await User.findOne({ email: email.toLowerCase() });
+    console.log('User found:', user ? 'Yes' : 'No');
     
     if (!user) {
+      console.log('No user found with email:', email);
       return res.status(401).json({ message: 'Invalid email or password' });
     }
     
     if (user.password !== password) {
+      console.log('Password mismatch for user:', email);
       return res.status(401).json({ message: 'Invalid email or password' });
     }
     
+    console.log('Login successful for user:', email);
     const { password: userPassword, ...userWithoutPassword } = user.toObject();
     res.json({ user: userWithoutPassword });
   } catch (error) {
+    console.error('Login error:', error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -80,10 +87,10 @@ const createUser = async (req, res) => {
       return res.status(400).json({ message: 'User ID already exists' });
     }
 
-    // Generate userId if not provided
-    if (!userId) {
-      req.body.userId = 'USR' + Date.now().toString().slice(-6);
-    }
+    // // Generate userId if not provided
+    // if (!userId) {
+    //   req.body.userId = 'USR' + Date.now().toString().slice(-6);
+    // }
     
     const user = new User({
       ...req.body,
